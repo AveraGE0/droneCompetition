@@ -12,7 +12,7 @@ import deap.algorithms as algorithms
 from simulation.simulation_manager import SharedMemory
 from simulation.simulation_client import simulate_drone
 from simulation.brain import ParseTreeBrain
-from simulation.result_functions import DronePathEvaluation
+from simulation.result_functions import DronePathResultFormatter
 from simulation.image_processing import StartDistProcessing
 from simulation.map_information import MapInformation
 from simulation.simulation_parameter import SimulationConfig
@@ -53,7 +53,7 @@ def create_pset():
 
 def run_evolution() -> None:
     # create simulation specific stuff
-    result_func = DronePathEvaluation()
+    result_formatter = DronePathResultFormatter()
     img_proc = StartDistProcessing()
     name = "test_tracks"
     with open("tracks/test_tracks_info.pickle", 'rb') as in_file:
@@ -95,7 +95,7 @@ def run_evolution() -> None:
             map_info=map_info,
             sim_info=sim_info,
             image_processing=img_proc,
-            result_func=result_func
+            result_formatter=result_formatter
         )
         return (
             sum([1 for score in scores if score[0]]),

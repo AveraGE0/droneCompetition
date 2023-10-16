@@ -3,9 +3,9 @@ import numpy as np
 from abc import ABC
 
 
-class ResultFunction(ABC):
+class ResultFormatter(ABC):
     """Interface for generation result scores (used for fitness)"""
-    def evaluate(self, **kwargs) -> tuple:
+    def foarmat(self, **kwargs) -> tuple:
         """Interface method. Must return a tuple of scores for an individual
 
         Returns:
@@ -14,10 +14,10 @@ class ResultFunction(ABC):
         raise NotImplementedError
 
 
-class DronePathEvaluation(ResultFunction):
+class DronePathResultFormatter(ResultFormatter):
     """Class to get results for a drone path given the segmented path"""
     
-    def evaluate(self, **kwargs) -> tuple:
+    def format(self, **kwargs) -> tuple:
         """Function to get results for the actual path a drone took compared to the segments that
         where available
 

@@ -1,7 +1,7 @@
 import pytest
+from simulation.brain import ParseTreeBrain
 from simulation.simulation_client import simulate_drone
-from simulation.brain import DecisionTreeBrain, NonTerminalNode, TerminalNode
-from simulation.result_functions import DronePathEvaluation
+from simulation.result_functions import DronePathResultFormatter
 from simulation.image_processing import StartDistProcessing
 from simulation.map_information import MapInformation
 from simulation.simulation_parameter import SimulationConfig
@@ -11,22 +11,11 @@ import numpy as np
 from pathlib import Path
 
 
-def make_brain() -> DecisionTreeBrain:
-    return DecisionTreeBrain(
-        NonTerminalNode(
-            NonTerminalNode(
-                TerminalNode((1, 0)),
-                TerminalNode((1, 1)),
-                lambda x: x[7] < x[0]
-            ),
-            NonTerminalNode(
-                TerminalNode((1, 0)),
-                TerminalNode((-1, 1)),
-                lambda x: x[1] < x[0]
-            ),
-            lambda x: x[7] > x[1]
-        )
+def make_brain() -> ParseTreeBrain:
+    return ParseTreeBrain(
+        lambda x1, x2, x3, x4, x5, x6, x7, x8: 0 if x1 > x3 else 1
     )
+    
 
 def test_map_cropping():
     map_info = MapInformation(
@@ -52,7 +41,7 @@ def test_sim():
     name = "test_tracks"
     # load map info
     img_proc = StartDistProcessing()
-    eval_func = DronePathEvaluation()
+    result_formatter = DronePathResultFormatter()
     with open("tracks/test_tracks_info.pickle", 'rb') as in_file:
         info_dict = pickle.load(in_file)
         map_info = MapInformation(
@@ -72,7 +61,7 @@ def test_sim():
             maps_shared = np.ndarray(shape=maps.shape, dtype=np.float32, buffer=sm.buf)
             maps_shared[:, :, :] = maps[:, :, :]
             brain = make_brain()
-            scores = simulate_drone(brain, map_info, sim_info,img_proc, eval_func)
+            scores = simulate_drone(brain, map_info, sim_info,img_proc, result_formatter)
             fitness = sum([1 for score in scores if score[0]]) + 1 * np.mean([score[1] for score in scores])
             print(f"Drone finished {sum([1 for completed in scores if completed[0]])}/{len(scores)} maps")
             print(f"Average {np.mean([score[1] for score in scores])}% staying on track.")

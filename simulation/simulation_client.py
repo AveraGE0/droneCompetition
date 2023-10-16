@@ -10,7 +10,7 @@ from simulation.brain import Brain
 from simulation.map_information import MapInformation
 from simulation.simulation_parameter import SimulationConfig
 from simulation.image_processing import StartDistProcessing, ImageProcessing
-from simulation.result_functions import ResultFunction, DronePathEvaluation
+from simulation.result_functions import ResultFormatter, DronePathResultFormatter
 from multiprocessing.shared_memory import SharedMemory
 import numpy as np
 # only for debug
@@ -23,7 +23,7 @@ def simulate_drone(
         map_info: MapInformation,
         sim_info: SimulationConfig,
         image_processing: ImageProcessing,
-        eval_func: ResultFunction
+        result_formatter: ResultFormatter
     ) -> dict:
     """Simulation function to actually simulate a brain (decision maker) on different environments
     (which can be accessed over the shared memory)
@@ -83,15 +83,13 @@ def simulate_drone(
             if len(positions) >= 5 and position[0] == positions[4][0] and position[1] == positions[4][1]:
                 print("That bitch aint moving")
                 break
-            plt.imshow(current_view)
-            plt.show()
+            #plt.imshow(current_view)
+            #plt.show()
         if step == sim_info.max_sim_steps - 1:
             print("Simulation step timeout.")
         # get evaluation scores (for the fitness function)
-        scores.append(eval_func.evaluate(actual_path=positions, segmented_indices=map_path_coords, finish_area=map_info.end_areas[i_map]))
+        scores.append(result_formatter.format(actual_path=positions, segmented_indices=map_path_coords, finish_area=map_info.end_areas[i_map]))
         plt.imshow(debug_img)
         plt.show()
-        #plt.imshow(current_view)
-        #plt.show()
         # TODO: write positions to file for testing
     return scores
